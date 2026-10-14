@@ -12,11 +12,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: WebBypass-1.21.4-Fabric
     steps:
       - uses: actions/checkout@v4
+
+      - name: Show files
+        run: ls -la
 
       - uses: actions/setup-java@v4
         with:
@@ -26,7 +26,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-          build-root-directory: WebBypass-1.21.4-Fabric
 
       - name: Build mod
         run: gradle build
@@ -35,5 +34,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-bypass-jar
-          path: WebBypass-1.21.4-Fabric/build/libs/*.jar
+          path: build/libs/*.jar
           if-no-files-found: error
