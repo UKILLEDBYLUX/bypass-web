@@ -15,8 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show files
-        run: ls -la
+      - name: Find project
+        id: find
+        run: |
+          echo "Files in repo:"
+          find . -not -path './.git/*' -type f | head -50
+          DIR=$(dirname "$(find . -name settings.gradle -not -path './.git/*' | head -1)")
+          if [ -z "$DIR" ] || [ "$DIR" = "." -a ! -f settings.gradle ]; then
+            echo "::error::settings.gradle не найден в репозитории. Файлы проекта не загружены."
+            exit 1
+          fi
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
         with:
@@ -28,11 +37,12 @@ jobs:
           gradle-version: '8.10.2'
 
       - name: Build mod
+        working-directory: ${{ steps.find.outputs.dir }}
         run: gradle build
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: web-bypass-jar
-          path: build/libs/*.jar
+          path: ${{ steps.find.outputs.dir }}/build/libs/*.jar
           if-no-files-found: error
