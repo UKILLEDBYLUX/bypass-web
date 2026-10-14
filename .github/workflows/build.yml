@@ -32,16 +32,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '8.12'
           build-root-directory: ${{ steps.find.outputs.dir }}
 
       - name: Build mod
-        working-directory: ${{ steps.find.outputs.dir }}
-        run: gradle build
-
-      - name: Upload JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-bypass-jar
-          path: ${{ steps.find.outputs.dir }}/build/libs/*.jar
-          if-no-files-found: error
+        working-directory:
