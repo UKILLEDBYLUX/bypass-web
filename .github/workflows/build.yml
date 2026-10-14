@@ -15,16 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Find project
+      - name: Unpack project
         id: find
         run: |
-          echo "Files in repo:"
-          find . -not -path './.git/*' -type f | head -50
-          DIR=$(dirname "$(find . -name settings.gradle -not -path './.git/*' | head -1)")
-          if [ -z "$DIR" ] || [ "$DIR" = "." -a ! -f settings.gradle ]; then
-            echo "::error::settings.gradle не найден в репозитории. Файлы проекта не загружены."
-            exit 1
-          fi
+          mkdir -p /tmp/proj
+          unzip -q ./*.zip -d /tmp/proj
+          DIR=$(dirname "$(find /tmp/proj -name settings.gradle | head -1)")
+          echo "Project dir: $DIR"
+          ls -la "$DIR"
           echo "dir=$DIR" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
@@ -35,6 +33,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+          build-root-directory: ${{ steps.find.outputs.dir }}
 
       - name: Build mod
         working-directory: ${{ steps.find.outputs.dir }}
